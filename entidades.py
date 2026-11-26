@@ -107,3 +107,91 @@ class Estacion:
         # Si el mueble tiene un plato o un ingrediente apoyado encima, le pedimos que se dibuje en (self._x, self._y)
         if self._objeto_encima is not None:
             self._objeto_encima.draw(self._x, self._y)
+
+
+class Chef:
+    # Representa a cada uno de los dos jugadores que se mueven y cocinan
+    def __init__(self, x, y, numerochef=1, acciones=False, cocina=None, direccion="derecha"):
+        # Guardamos posición, número de jugador (1 o 2), dirección hacia la que mira y lo que lleva en la mano
+        self._x = x
+        self._y = y
+        self._numerochef = numerochef
+        self._acciones = acciones
+        self._cocina = cocina
+        self._direccion = direccion
+        # Guarda el Ingrediente o Plato que lleva cogido el chef (empieza con las manos vacías: None)
+        self._objeto_en_mano = None
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
+
+    @property
+    def direccion(self):
+        return self._direccion
+
+    @property
+    def acciones(self):
+        return self._acciones
+
+    @acciones.setter
+    def acciones(self, nuevoestado):
+        self._acciones = nuevoestado
+
+    @property
+    def objeto_en_mano(self):
+        return self._objeto_en_mano
+
+    @objeto_en_mano.setter
+    def objeto_en_mano(self, nuevo_objeto):
+        # Permite que el chef coja o suelte un ingrediente o un plato
+        self._objeto_en_mano = nuevo_objeto
+
+    def actualizaracciones(self):
+        # Controles para el Chef 1 (WASD para moverse + Q para interactuar)
+        if self._numerochef == 1:
+            if pyxel.btn(pyxel.KEY_A):
+                self._x -= 2
+                self._direccion = "izquierda"
+            if pyxel.btn(pyxel.KEY_D):
+                self._x += 2
+                self._direccion = "derecha"
+            if pyxel.btn(pyxel.KEY_W):
+                self._y -= 2
+                self._direccion = "arriba"
+            if pyxel.btn(pyxel.KEY_S):
+                self._y += 2
+                self._direccion = "abajo"
+
+
+        # Controles para el Chef 2 (Flechas para moverse + Espacio para interactuar)
+        elif self._numerochef == 2:
+            if pyxel.btn(pyxel.KEY_LEFT):
+                self._x -= 2
+                self._direccion = "izquierda"
+            if pyxel.btn(pyxel.KEY_RIGHT):
+                self._x += 2
+                self._direccion = "derecha"
+            if pyxel.btn(pyxel.KEY_UP):
+                self._y -= 2
+                self._direccion = "arriba"
+            if pyxel.btn(pyxel.KEY_DOWN):
+                self._y += 2
+                self._direccion = "abajo"
+            if pyxel.btnp(pyxel.KEY_SPACE):
+                self._acciones = not self._acciones
+
+    def draw(self):
+        # Si mira a la izquierda ponemos ancho negativo (-16) para voltear el dibujo horizontalmente
+        ancho = -TAMANO_CASILLA if self._direccion == "izquierda" else TAMANO_CASILLA
+        # El Chef 1 saca su dibujo de u=0 y el Chef 2 de u=16 en el editor de Pyxel
+        u_sprite = 0 if self._numerochef == 1 else 16
+        pyxel.blt(self._x, self._y, 0, u_sprite, 0, ancho, TAMANO_CASILLA, 0)
+
+        # Si el chef lleva un ingrediente o un plato en la mano, lo dibujamos un poco por encima de su cabeza
+        if self._objeto_en_mano is not None:
+            self._objeto_en_mano.draw(self._x, self._y - 10)
